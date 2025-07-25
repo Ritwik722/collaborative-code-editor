@@ -8,7 +8,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
 </head>
 <body>
-    <div class="main-container">
+    <div id="join-screen">
+        <h2>Join a Coding Room</h2>
+        <input type="text" id="room-id-input" placeholder="Enter Room ID">
+        <button id="join-btn">Join</button>
+    </div>
+
+    <div class="main-container" id="main-app" style="display: none;">
         <div id="editor-container">
             <textarea id="code-editor"></textarea>
         </div>
@@ -22,7 +28,6 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
-    
     <script src="script.js"></script>
 </body>
 </html>
