@@ -133,17 +133,19 @@ io.on('connection', (socket) => {
         });
 
         socket.on('send-message', (message) => {
-            io.to(roomID).emit('receive-message', { user: socket.id, text: message });
+            // Send the username instead of the socket.id
+            io.to(socket.currentRoom).emit('receive-message', { user: socket.currentUser.username, text: message });
         });
     });
 
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
         const roomID = socket.currentRoom;
-        if (roomID && rooms[roomID]) {
-            // Remove user from room tracker
-            rooms[roomID] = rooms[roomID].filter(id => id !== socket.id);
-            // Broadcast the updated list
+        // Check if the user and room exist before trying to modify
+        if (roomID && rooms[roomID] && socket.currentUser) {
+            // Remove the username from the room tracker
+            rooms[roomID] = rooms[roomID].filter(username => username !== socket.currentUser.username);
+            // Broadcast the updated user list
             io.to(roomID).emit('update-user-list', rooms[roomID]);
         }
     });

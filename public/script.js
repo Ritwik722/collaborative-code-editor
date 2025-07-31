@@ -137,17 +137,18 @@ socket.on('code-update', (code) => {
 
 socket.on('receive-message', (data) => {
     const msgElement = document.createElement('div');
-    const userDisplay = data.user.substring(0, 5); 
-    msgElement.textContent = `${userDisplay}: ${data.text}`;
+    // No need to shorten the username anymore
+    msgElement.textContent = `${data.user}: ${data.text}`;
     messagesDiv.appendChild(msgElement);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 });
 
 socket.on('update-user-list', (users) => {
-    userList.innerHTML = '';
-    users.forEach(user => {
+    userList.innerHTML = ''; // Clear the current list
+    users.forEach(username => {
         const li = document.createElement('li');
-        li.textContent = user.substring(0, 5);
+        // No need to shorten the username anymore
+        li.textContent = username;
         userList.appendChild(li);
     });
 });
