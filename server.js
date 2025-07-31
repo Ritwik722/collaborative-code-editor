@@ -154,59 +154,56 @@ io.on('connection', (socket) => {
 });
 
 app.post('/execute', async (req, res) => {
-    const { code } = req.body;
+    // Get code and languageId from the request
+    const { code, languageId } = req.body;
 
-    const options = {
+    // Convert languageId from a string to a number
+    const numericLanguageId = parseInt(languageId, 10);
+
+    // --- FIRST REQUEST (to create the submission) ---
+    const submissionOptions = {
         method: 'POST',
         url: 'https://judge0-ce.p.rapidapi.com/submissions',
-        params: {
-            base64_encoded: 'false',
-            fields: '*'
-        },
+        params: { base64_encoded: 'false', fields: '*' },
         headers: {
-        'content-type': 'application/json',
-        'X-RapidAPI-Key': '50ecf0364emsh5e56d87a056faffp1da61ejsnf48d27fcb81b', // Paste your key here
-        'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
-         },
+            'content-type': 'application/json',
+            'X-RapidAPI-Key': '50ecf0364emsh5e56d87a056faffp1da61ejsnf48d27fcb81b', // Make sure your key is here
+            'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
+        },
         data: {
-            // We are hardcoding JavaScript (ID 93) for now.
-            language_id: 93,
+            // Use the numericLanguageId here
+            language_id: numericLanguageId,
             source_code: code,
         }
     };
 
     try {
-        // First, create the submission
-        const submissionResponse = await axios.request(options);
+        const submissionResponse = await axios.request(submissionOptions);
         const token = submissionResponse.data.token;
 
-        // Poll for the result
+        // --- SECOND REQUEST (to get the result) ---
         let resultResponse;
         do {
-            // Wait for a moment before checking again
             await new Promise(resolve => setTimeout(resolve, 1000));
-            resultResponse = await axios.request({
+            const resultOptions = {
                 method: 'GET',
                 url: `https://judge0-ce.p.rapidapi.com/submissions/${token}`,
-                params: {
-                    base64_encoded: 'false',
-                    fields: '*'
-                },
+                params: { base64_encoded: 'false', fields: '*' },
                 headers: {
-                    'X-RapidAPI-Key': '50ecf0364emsh5e56d87a056faffp1da61ejsnf48d27fcb81b', // IMPORTANT: Replace with your key
+                    'X-RapidAPI-Key': '50ecf0364emsh5e56d87a056faffp1da61ejsnf48d27fcb81b', // Make sure your key is here too
                     'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
                 }
-            });
-        } while (resultResponse.data.status.id <= 2); // Status 1 (In Queue) or 2 (Processing)
+            };
+            resultResponse = await axios.request(resultOptions);
+        } while (resultResponse.data.status.id <= 2);
 
         res.json(resultResponse.data);
 
     } catch (error) {
-        console.error(error);
+        console.error("Error with Judge0 API:", error.response ? error.response.data : error.message);
         res.status(500).json({ message: "Error executing code" });
     }
 });
-
 
 server.listen(PORT, () => {
     console.log(`🚀 Server is running on http://localhost:${PORT}`);

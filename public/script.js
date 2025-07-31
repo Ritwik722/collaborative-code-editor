@@ -4,7 +4,7 @@ const socket = io();
 // --- DOM Elements ---
 const authContainer = document.getElementById('auth-container');
 const mainApp = document.getElementById('main-app');
-
+const languageSelect = document.getElementById('language-select');
 // --- Get DOM Elements for this feature ---
 const runBtn = document.getElementById('run-btn');
 const outputBox = document.getElementById('output-box');
@@ -61,15 +61,16 @@ registerForm.addEventListener('submit', async (e) => {
             body: JSON.stringify({ username, password })
         });
         const data = await res.json();
+
+        // REPLACED ALERT WITH TOASTIFY
         if (res.status === 201) {
-            alert('Registration successful! Please log in.');
-            showLoginLink.click(); // Switch to login form
+            Toastify({ text: "Registration successful! Please log in.", duration: 3000, gravity: "top", position: "right", backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)" }).showToast();
+            showLoginLink.click();
         } else {
-            alert(data.message);
+            Toastify({ text: data.message, duration: 3000, gravity: "top", position: "right", backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)" }).showToast();
         }
     } catch (err) {
         console.error(err);
-        alert('An error occurred.');
     }
 });
 
@@ -91,14 +92,13 @@ loginForm.addEventListener('submit', async (e) => {
             currentUser = data.user;
             enterMainApp();
         } else {
-            alert('Login failed. Check username and password.');
+            // REPLACED ALERT WITH TOASTIFY
+            Toastify({ text: "Login failed. Check username and password.", duration: 3000, gravity: "top", position: "right", backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)" }).showToast();
         }
     } catch (err) {
         console.error(err);
-        alert('An error occurred.');
     }
 });
-
 // --- Logout Handler ---
 logoutBtn.addEventListener('click', async () => {
     await fetch('/logout');
@@ -110,16 +110,19 @@ logoutBtn.addEventListener('click', async () => {
 // --- Run Code Handler ---
 runBtn.addEventListener('click', async () => {
     const code = editor.getValue();
+    const languageId = languageSelect.value;
     if (!code) return;
 
     outputBox.textContent = 'Running...';
 
     try {
+        // Send both code and languageId to the backend
         const res = await fetch('/execute', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code: code })
+            body: JSON.stringify({ code: code, languageId: languageId })
         });
+
         const result = await res.json();
 
          if (result.stdout) {
@@ -138,6 +141,16 @@ runBtn.addEventListener('click', async () => {
         outputBox.textContent = 'An error occurred while running the code.';
     }
 });
+// Add this new listener somewhere with your other event listeners
+languageSelect.addEventListener('change', () => {
+    const languageMap = {
+        '93': 'javascript',
+        '71': 'python',
+        '54': 'text/x-c++src' // CodeMirror mode for C++
+    };
+    const mode = languageMap[languageSelect.value];
+    editor.setOption("mode", mode);
+});
 
 // --- Main App Logic ---
 function enterMainApp() {
@@ -145,11 +158,13 @@ function enterMainApp() {
     mainApp.style.display = 'flex';
     userDisplay.textContent = `Welcome, ${currentUser.username}`;
 
+    // Add this line to fix the line number bug
+    editor.refresh();
+
     // For now, let's hardcode a room. You can build a room selection UI later.
     const roomID = 'general-room';
     socket.emit('join-room', { roomID, user: currentUser });
 }
-
 
 // --- Socket Listeners (To be updated later to use username) ---
 editor.on('change', (instance, change) => {
@@ -162,6 +177,20 @@ chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && chatInput.value) {
         socket.emit('send-message', chatInput.value);
         chatInput.value = '';
+    }
+});
+
+const themeCheckbox = document.getElementById('theme-checkbox');
+
+themeCheckbox.addEventListener('change', () => {
+    // Toggle the .dark-mode class on the body
+    document.body.classList.toggle('dark-mode');
+
+    // Change the CodeMirror editor theme
+    if (themeCheckbox.checked) {
+        editor.setOption('theme', 'material-darker');
+    } else {
+        editor.setOption('theme', 'default');
     }
 });
 

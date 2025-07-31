@@ -6,6 +6,10 @@
     <title>Collaborative Coder</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/material-darker.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
 </head>
 <body>
     <div id="auth-container">
@@ -33,13 +37,24 @@
 
     <div class="main-container" id="main-app" style="display: none;">
         <div id="editor-container">
-    <div id="editor-header">
-        <span id="user-display"></span>
-        <div>
-            <button id="run-btn">Run Code</button>
-            <button id="logout-btn">Logout</button>
+<div id="editor-header">
+    <span id="user-display"></span>
+    <div>
+        <div class="theme-switch-wrapper">
+            <label class="theme-switch" for="theme-checkbox">
+                <input type="checkbox" id="theme-checkbox" />
+                <div class="slider round"></div>
+            </label>
         </div>
+        <select id="language-select">
+            <option value="93">JavaScript</option>
+            <option value="71">Python</option>
+            <option value="54">C++</option>
+        </select>
+        <button id="run-btn">Run Code</button>
+        <button id="logout-btn">Logout</button>
     </div>
+</div>
 
     <textarea id="code-editor"></textarea>
     
@@ -78,5 +93,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
     <script src="script.js"></script>
+     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="..."></script> <script src="script.js"></script>
+
 </body>
 </html>
