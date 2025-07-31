@@ -33,12 +33,21 @@
 
     <div class="main-container" id="main-app" style="display: none;">
         <div id="editor-container">
-            <div id="editor-header">
-                <span id="user-display"></span>
-                <button id="logout-btn">Logout</button>
-            </div>
-            <textarea id="code-editor"></textarea>
+    <div id="editor-header">
+        <span id="user-display"></span>
+        <div>
+            <button id="run-btn">Run Code</button>
+            <button id="logout-btn">Logout</button>
         </div>
+    </div>
+
+    <textarea id="code-editor"></textarea>
+    
+    <div id="output-container">
+        <h4>Output</h4>
+        <pre id="output-box"></pre>
+    </div>
+</div>
         <div id="chat-container">
              <div id="user-list-container">
                 <h3>Connected Users</h3>
@@ -50,6 +59,19 @@
                 <input id="chat-input" type="text" placeholder="Type a message...">
             </div>
         </div>
+    </div>
+
+        <div id="editor-header">
+        <span id="user-display"></span>
+        <div>
+            <button id="run-btn">Run Code</button>
+            <button id="logout-btn">Logout</button>
+        </div>
+    </div>
+    <textarea id="code-editor"></textarea>
+    <div id="output-container">
+        <h4>Output</h4>
+        <pre id="output-box"></pre>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>

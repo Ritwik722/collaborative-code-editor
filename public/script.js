@@ -5,6 +5,11 @@ const socket = io();
 const authContainer = document.getElementById('auth-container');
 const mainApp = document.getElementById('main-app');
 
+// --- Get DOM Elements for this feature ---
+const runBtn = document.getElementById('run-btn');
+const outputBox = document.getElementById('output-box');
+
+
 // Auth forms
 const loginForm = document.getElementById('login-form');
 const registerForm = document.getElementById('register-form');
@@ -102,6 +107,37 @@ logoutBtn.addEventListener('click', async () => {
     mainApp.style.display = 'none';
 });
 
+// --- Run Code Handler ---
+runBtn.addEventListener('click', async () => {
+    const code = editor.getValue();
+    if (!code) return;
+
+    outputBox.textContent = 'Running...';
+
+    try {
+        const res = await fetch('/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: code })
+        });
+        const result = await res.json();
+
+         if (result.stdout) {
+            outputBox.textContent = result.stdout;
+        } else if (result.stderr) {
+            // Display stderr if stdout is empty (common for console.log)
+            outputBox.textContent = result.stderr;
+        } else if (result.compile_output) {
+            outputBox.textContent = `Compilation Error:\n${result.compile_output}`;
+        } else {
+            outputBox.textContent = 'Execution finished with no output.';
+        }
+
+    } catch (err) {
+        console.error(err);
+        outputBox.textContent = 'An error occurred while running the code.';
+    }
+});
 
 // --- Main App Logic ---
 function enterMainApp() {

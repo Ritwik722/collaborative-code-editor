@@ -118,3 +118,27 @@ body {
 #logout-btn {
     padding: 5px 10px;
 }
+
+/* public/style.css */
+#editor-header div {
+    display: flex;
+    gap: 10px;
+}
+#output-container {
+    height: 200px;
+    background-color: #2d2d2d;
+    color: #f1f1f1;
+    padding: 10px;
+    font-family: monospace;
+    overflow-y: auto;
+    border-top: 2px solid #ccc;
+}
+#output-container h4 {
+    margin: 0 0 10px 0;
+    font-family: sans-serif;
+    font-weight: normal;
+}
+#output-box {
+    margin: 0;
+    white-space: pre-wrap; /* Wrap long lines */
+}

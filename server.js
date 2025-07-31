@@ -1,8 +1,10 @@
 
 const mongoose = require('mongoose');
 
+const axios = require('axios');
+
 // --- Database Connection ---
-// server.js
+
 
 const connectDB = async () => {
     try {
@@ -150,6 +152,61 @@ io.on('connection', (socket) => {
         }
     });
 });
+
+app.post('/execute', async (req, res) => {
+    const { code } = req.body;
+
+    const options = {
+        method: 'POST',
+        url: 'https://judge0-ce.p.rapidapi.com/submissions',
+        params: {
+            base64_encoded: 'false',
+            fields: '*'
+        },
+        headers: {
+        'content-type': 'application/json',
+        'X-RapidAPI-Key': '50ecf0364emsh5e56d87a056faffp1da61ejsnf48d27fcb81b', // Paste your key here
+        'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
+         },
+        data: {
+            // We are hardcoding JavaScript (ID 93) for now.
+            language_id: 93,
+            source_code: code,
+        }
+    };
+
+    try {
+        // First, create the submission
+        const submissionResponse = await axios.request(options);
+        const token = submissionResponse.data.token;
+
+        // Poll for the result
+        let resultResponse;
+        do {
+            // Wait for a moment before checking again
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            resultResponse = await axios.request({
+                method: 'GET',
+                url: `https://judge0-ce.p.rapidapi.com/submissions/${token}`,
+                params: {
+                    base64_encoded: 'false',
+                    fields: '*'
+                },
+                headers: {
+                    'X-RapidAPI-Key': '50ecf0364emsh5e56d87a056faffp1da61ejsnf48d27fcb81b', // IMPORTANT: Replace with your key
+                    'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
+                }
+            });
+        } while (resultResponse.data.status.id <= 2); // Status 1 (In Queue) or 2 (Processing)
+
+        res.json(resultResponse.data);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error executing code" });
+    }
+});
+
 
 server.listen(PORT, () => {
     console.log(`🚀 Server is running on http://localhost:${PORT}`);
