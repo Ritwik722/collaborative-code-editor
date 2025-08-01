@@ -264,3 +264,41 @@ input:checked + .slider:before {
     white-space: pre-wrap; /* Allows text to wrap */
     line-height: 1.6;
 }
+/* public/style.css */
+
+/* Lobby Styles */
+#lobby-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+#lobby-box {
+    padding: 2rem;
+    background: var(--primary-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 400px;
+    text-align: center;
+}
+#lobby-box h2 {
+    margin-bottom: 0.5rem;
+}
+#lobby-box p {
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+#lobby-box input {
+    width: 95%;
+    padding: 10px;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+#lobby-box button {
+    width: 100%;
+    padding: 10px;
+}

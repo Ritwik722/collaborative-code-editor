@@ -1,6 +1,11 @@
 // public/script.js
 const socket = io();
 
+
+const lobbyContainer = document.getElementById('lobby-container');
+const joinRoomBtn = document.getElementById('join-room-btn');
+const roomInput = document.getElementById('room-input');
+
 const explainBtn = document.getElementById('explain-btn');
 const aiModal = document.getElementById('ai-modal');
 const aiResponseDiv = document.getElementById('ai-response');
@@ -95,7 +100,7 @@ loginForm.addEventListener('submit', async (e) => {
         if (res.ok) {
             const data = await res.json();
             currentUser = data.user;
-            enterMainApp();
+            showLobby();
         } else {
             // REPLACED ALERT WITH TOASTIFY
             Toastify({ text: "Login failed. Check username and password.", duration: 3000, gravity: "top", position: "right", backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)" }).showToast();
@@ -104,6 +109,22 @@ loginForm.addEventListener('submit', async (e) => {
         console.error(err);
     }
 });
+
+joinRoomBtn.addEventListener('click', () => {
+    const roomID = roomInput.value.trim();
+    if (roomID) {
+        // Hide the lobby and show the main app
+        lobbyContainer.style.display = 'none';
+        mainApp.style.display = 'flex';
+
+        // Refresh the editor now that it's visible
+        editor.refresh();
+
+        // Emit the event to join the specific room
+        socket.emit('join-room', { roomID, user: currentUser });
+    }
+});
+
 // --- Logout Handler ---
 logoutBtn.addEventListener('click', async () => {
     await fetch('/logout');
@@ -158,17 +179,11 @@ languageSelect.addEventListener('change', () => {
 });
 
 // --- Main App Logic ---
-function enterMainApp() {
+function showLobby() {
     authContainer.style.display = 'none';
-    mainApp.style.display = 'flex';
+    lobbyContainer.style.display = 'flex'; // Show the lobby
+    mainApp.style.display = 'none'; // Keep the main app hidden for now
     userDisplay.textContent = `Welcome, ${currentUser.username}`;
-
-    // Add this line to fix the line number bug
-    editor.refresh();
-
-    // For now, let's hardcode a room. You can build a room selection UI later.
-    const roomID = 'general-room';
-    socket.emit('join-room', { roomID, user: currentUser });
 }
 
 // --- Socket Listeners (To be updated later to use username) ---
