@@ -1,6 +1,9 @@
 // public/script.js
 const socket = io();
 
+let remoteCursors = {};
+let remoteSelections = {};
+
 const authContainer = document.getElementById('auth-container');
 const lobbyContainer = document.getElementById('lobby-container');
 const joinRoomBtn = document.getElementById('join-room-btn');
@@ -239,6 +242,44 @@ socket.on('update-user-list', (users) => {
     });
 });
 
+socket.on('cursor-change', (data) => {
+    const userId = data.user.id;
+    if (userId === currentUser.id) return; // Don't render our own cursor
+
+    if (remoteCursors[userId]) {
+        remoteCursors[userId].clear(); // Clear the previous cursor marker
+    }
+
+    const cursorElement = document.createElement('div');
+    cursorElement.className = 'remote-cursor';
+    cursorElement.style.borderLeftColor = getUserColor(userId);
+
+    const labelElement = document.createElement('div');
+    labelElement.className = 'remote-cursor-label';
+    labelElement.textContent = data.user.username;
+    labelElement.style.backgroundColor = getUserColor(userId);
+    cursorElement.appendChild(labelElement);
+
+    remoteCursors[userId] = editor.setBookmark(data.from, { widget: cursorElement });
+});
+
+socket.on('selection-change', (data) => {
+    const userId = data.user.id;
+    if (userId === currentUser.id) return; // Don't render our own selection
+
+    if (remoteSelections[userId]) {
+        remoteSelections[userId].clear(); // Clear the previous selection marker
+    }
+
+    if (data) { // If there is a new selection to draw
+        const color = getUserColor(userId);
+        remoteSelections[userId] = editor.markText(data.from, data.to, {
+            css: `background-color: ${color};`,
+            className: 'remote-selection'
+        });
+    }
+});
+
 // --- AI Explanation Logic ---
 explainBtn.addEventListener('click', async () => {
     const selectedCode = editor.getSelection(); // Get only the highlighted code
@@ -287,3 +328,37 @@ Split(['#editor-pane', '#side-pane'], {
         editor.refresh();
     }
 });
+
+// public/script.js
+let lastCursorEmit = 0;
+editor.on('cursorActivity', () => {
+    // Limit how often we send data to prevent flooding the server
+    const now = Date.now();
+    if (now - lastCursorEmit < 50) return;
+    lastCursorEmit = now;
+
+    // Send cursor position
+    const cursor = editor.getCursor();
+    socket.emit('cursor-change', { from: cursor });
+
+    // Send selection, or send null to clear the selection
+    if (editor.somethingSelected()) {
+        const selection = editor.listSelections()[0];
+        socket.emit('selection-change', { from: selection.anchor, to: selection.head });
+    } else {
+        socket.emit('selection-change', null);
+    }
+});
+
+function getUserColor(userId) {
+    let hash = 0;
+    for (let i = 0; i < userId.length; i++) {
+        hash = userId.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    let color = '#';
+    for (let i = 0; i < 3; i++) {
+        let value = (hash >> (i * 8)) & 0xFF;
+        color += ('00' + value.toString(16)).substr(-2);
+    }
+    return color;
+}

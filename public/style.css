@@ -311,3 +311,25 @@ input:checked + .slider:before {
     width: 100%;
     padding: 10px;
 }
+/* --- Live Collaboration Styles --- */
+.remote-cursor {
+    position: absolute;
+    border-left: 2px solid; /* The vertical cursor bar */
+    height: 1.1em; /* Match editor line height */
+    opacity: 0.9;
+    z-index: 30;
+}
+.remote-cursor-label {
+    position: absolute;
+    top: -1.4em;
+    left: -2px;
+    padding: 2px 5px;
+    color: white;
+    font-size: 12px;
+    white-space: nowrap;
+    border-radius: 4px;
+    user-select: none;
+}
+.remote-selection {
+    opacity: 0.25; /* Make selection semi-transparent */
+}
