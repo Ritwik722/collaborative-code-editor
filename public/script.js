@@ -1,6 +1,11 @@
 // public/script.js
 const socket = io();
 
+const explainBtn = document.getElementById('explain-btn');
+const aiModal = document.getElementById('ai-modal');
+const aiResponseDiv = document.getElementById('ai-response');
+const modalCloseBtn = document.querySelector('.modal-close');
+
 // --- DOM Elements ---
 const authContainer = document.getElementById('auth-container');
 const mainApp = document.getElementById('main-app');
@@ -216,4 +221,42 @@ socket.on('update-user-list', (users) => {
         li.textContent = username;
         userList.appendChild(li);
     });
+});
+
+// --- AI Explanation Logic ---
+explainBtn.addEventListener('click', async () => {
+    const selectedCode = editor.getSelection(); // Get only the highlighted code
+    if (!selectedCode) {
+        Toastify({ text: "Please highlight some code to explain.", duration: 3000, gravity: "top", position: "right" }).showToast();
+        return;
+    }
+
+    // Show the modal with a loading message
+    aiResponseDiv.textContent = 'Thinking...';
+    aiModal.style.display = 'flex';
+
+    try {
+        const res = await fetch('/explain', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: selectedCode })
+        });
+        const data = await res.json();
+        aiResponseDiv.textContent = data.explanation;
+    } catch (err) {
+        aiResponseDiv.textContent = 'Sorry, an error occurred.';
+        console.error(err);
+    }
+});
+
+// --- Modal Closing Logic ---
+modalCloseBtn.addEventListener('click', () => {
+    aiModal.style.display = 'none';
+});
+
+aiModal.addEventListener('click', (e) => {
+    // Close modal if user clicks on the dark overlay
+    if (e.target === aiModal) {
+        aiModal.style.display = 'none';
+    }
 });

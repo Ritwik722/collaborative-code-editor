@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 
 const axios = require('axios');
 
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const genAI = new GoogleGenerativeAI("AIzaSyANS_q2t6Ck9zPy6_eXfk02Buj7Jv2ZOxk");
+
 // --- Database Connection ---
 
 
@@ -202,6 +205,33 @@ app.post('/execute', async (req, res) => {
     } catch (error) {
         console.error("Error with Judge0 API:", error.response ? error.response.data : error.message);
         res.status(500).json({ message: "Error executing code" });
+    }
+});
+
+app.post('/explain', async (req, res) => {
+    // IMPORTANT: Make sure you have initialized genAI with your API key
+    if (!genAI) {
+        return res.status(500).json({ message: "AI client not initialized" });
+    }
+
+    const { code } = req.body;
+    if (!code) {
+        return res.status(400).json({ message: "No code provided" });
+    }
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const prompt = `Explain the following code snippet in simple terms. Format the output neatly for a beginner:\n\n\`\`\`\n${code}\n\`\`\``;
+
+        const result = await model.generateContent(prompt);
+        const response = result.response;
+        const text = response.text();
+
+        res.json({ explanation: text });
+
+    } catch (error) {
+        console.error("Error with Google AI API:", error);
+        res.status(500).json({ message: "Error getting explanation from AI" });
     }
 });
 
