@@ -41,16 +41,25 @@ body {
     display: flex;
     height: 100vh;
 }
-#editor-container {
-    flex: 3;
+.pane {
+    overflow: hidden; /* Hide content that overflows during resize */
     display: flex;
     flex-direction: column;
 }
-#chat-container {
-    flex: 1;
-    border-left: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
+
+.gutter {
+    background-color: var(--border-color);
+    background-repeat: no-repeat;
+    background-position: 50%;
+}
+
+.gutter.gutter-horizontal {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxl7ACYGEQ0kH1DGR8oBCgUADn8fAHDnCV/pAAAAAElFTkSuQmCC');
+    cursor: col-resize;
+}
+
+/* This ensures the chat/user-list part doesn't lose its background color */
+#side-pane {
     background-color: var(--primary-bg);
 }
 .CodeMirror {

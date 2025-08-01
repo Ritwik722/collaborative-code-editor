@@ -1,7 +1,7 @@
 // public/script.js
 const socket = io();
 
-
+const authContainer = document.getElementById('auth-container');
 const lobbyContainer = document.getElementById('lobby-container');
 const joinRoomBtn = document.getElementById('join-room-btn');
 const roomInput = document.getElementById('room-input');
@@ -12,7 +12,7 @@ const aiResponseDiv = document.getElementById('ai-response');
 const modalCloseBtn = document.querySelector('.modal-close');
 
 // --- DOM Elements ---
-const authContainer = document.getElementById('auth-container');
+
 const mainApp = document.getElementById('main-app');
 const languageSelect = document.getElementById('language-select');
 // --- Get DOM Elements for this feature ---
@@ -86,7 +86,9 @@ registerForm.addEventListener('submit', async (e) => {
 
 // --- Login Handler ---
 loginForm.addEventListener('submit', async (e) => {
+    // This line is CRITICAL. It prevents the page from reloading.
     e.preventDefault();
+
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
 
@@ -100,9 +102,8 @@ loginForm.addEventListener('submit', async (e) => {
         if (res.ok) {
             const data = await res.json();
             currentUser = data.user;
-            showLobby();
+            showLobby(); // This should transition to the lobby
         } else {
-            // REPLACED ALERT WITH TOASTIFY
             Toastify({ text: "Login failed. Check username and password.", duration: 3000, gravity: "top", position: "right", backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)" }).showToast();
         }
     } catch (err) {
@@ -273,5 +274,16 @@ aiModal.addEventListener('click', (e) => {
     // Close modal if user clicks on the dark overlay
     if (e.target === aiModal) {
         aiModal.style.display = 'none';
+    }
+});
+// --- Initialize Resizable Panes ---
+Split(['#editor-pane', '#side-pane'], {
+    sizes: [75, 25], // Initial sizes in percentage
+    minSize: [400, 250], // Minimum size in pixels
+    gutterSize: 8,
+    cursor: 'col-resize',
+    // This is a crucial step to fix line numbers when dragging
+    onDrag: function() {
+        editor.refresh();
     }
 });

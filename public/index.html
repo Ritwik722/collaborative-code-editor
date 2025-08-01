@@ -46,6 +46,15 @@
 
 
     <div class="main-container" id="main-app" style="display: none;">
+        <div id="editor-pane" class="pane">
+        <div id="editor-header"></div>
+        <textarea id="code-editor"></textarea>
+        <div id="output-container"></div>
+    </div>
+    <div id="side-pane" class="pane">
+        <div id="user-list-container"></div>
+        <div id="chat-box"></div>
+    </div>
         <div id="editor-container">
 <div id="editor-header">
     <span id="user-display"></span>
@@ -108,14 +117,12 @@
         </div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
+     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
+
     <script src="script.js"></script>
-     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="..."></script> <script src="script.js"></script>
-
 </body>
 </html>
