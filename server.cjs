@@ -1,44 +1,48 @@
+// server.cjs
 
-const mongoose = require('mongoose');
+// 1. Load environment variables FIRST
+require('dotenv').config();
 
-const axios = require('axios');
-
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const genAI = new GoogleGenerativeAI("AIzaSyANS_q2t6Ck9zPy6_eXfk02Buj7Jv2ZOxk");
-
-// --- Database Connection ---
-
-
-const connectDB = async () => {
-    try {
-        const conn = await mongoose.connect("mongodb+srv://ritwiksune:100804@cluster0.rrlwuoq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
-    } catch (error) {
-        console.error(error);
-        process.exit(1);
-    }
-};
-
-connectDB(); // Call the function to connect
-
-// server.js
+// 2. Require all your packages
 const express = require('express');
 const http = require('http');
-const { Server } = require("socket.io");
+const { Server } = require('socket.io');
+const mongoose = require('mongoose');
+const session = require('express-session');
+const passport = require('passport');
+const MongoStore = require('connect-mongo');
+const bcrypt = require('bcryptjs');
+const axios = require('axios');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const User = require('./models/User');
 
+
+// 3. Define the async function for the database connection
+const connectDB = async () => {
+  try {
+    // 'await' is now safely inside the 'async' function
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('MongoDB Connected...');
+  } catch (err) {
+    console.error(err.message);
+    // Exit process with failure
+    process.exit(1);
+  }
+};
+
+// 4. Call the function to connect to the database
+connectDB();
+
+
+// 5. Initialize your Express app and the rest of your code...
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+
+
 const PORT = process.env.PORT || 3000;
 const rooms = {}; // This will store our room data
-
-const session = require('express-session');
-const passport = require('passport');
-const MongoStore = require('connect-mongo');
-const User = require('./models/User');
-
-const bcrypt = require('bcryptjs');
 
 app.use(express.static('public'));
 
@@ -55,7 +59,7 @@ app.use(
         secret: 'keyboard cat', // Replace with a real secret in production
         resave: false,
         saveUninitialized: false,
-        store: MongoStore.create({ mongoUrl: "mongodb+srv://ritwiksune:100804@cluster0.rrlwuoq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0" })
+        store: MongoStore.create({ mongoUrl: process.env.MONGO_URI })
     })
 );
 
@@ -170,7 +174,7 @@ app.post('/execute', async (req, res) => {
         params: { base64_encoded: 'false', fields: '*' },
         headers: {
             'content-type': 'application/json',
-            'X-RapidAPI-Key': '50ecf0364emsh5e56d87a056faffp1da61ejsnf48d27fcb81b', // Make sure your key is here
+            'X-RapidAPI-Key': process.env.RAPIDAPI_KEY, // Make sure your key is here
             'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
         },
         data: {
@@ -193,7 +197,7 @@ app.post('/execute', async (req, res) => {
                 url: `https://judge0-ce.p.rapidapi.com/submissions/${token}`,
                 params: { base64_encoded: 'false', fields: '*' },
                 headers: {
-                    'X-RapidAPI-Key': '50ecf0364emsh5e56d87a056faffp1da61ejsnf48d27fcb81b', // Make sure your key is here too
+                    'X-RapidAPI-Key': process.env.RAPIDAPI_KEY, // Make sure your key is here too
                     'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
                 }
             };
